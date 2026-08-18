@@ -1,0 +1,588 @@
+PHASE 1 — FOUNDATION, AUTHENTICATION & DATABASE
+
+Build Phase 1 of my premium multilingual conversational AI calendar and reminder assistant.
+
+IMPORTANT:
+Only build Phase 1.
+Do NOT build voice, AI conversation, calendar UI, reminders UI, memory UI, or advanced animations yet.
+
+The goal of Phase 1 is to create a clean, production-ready foundation that the later phases can build on.
+
+==================================================
+1. PRODUCT
+==================================================
+
+The application is a voice-first personal AI assistant.
+
+Core future experience:
+
+User:
+"I have a meeting with Rahul next Friday."
+
+Later:
+"Actually move it to Monday."
+
+Later:
+"Remind me one hour before."
+
+The AI will eventually understand the context and manage the user's calendar and reminders.
+
+For Phase 1, only prepare the backend/data foundation for this experience.
+
+==================================================
+2. TECH STACK
+==================================================
+
+Use:
+
+Frontend:
+- Next.js
+- TypeScript
+- Tailwind CSS
+
+Backend:
+- Supabase
+
+Database:
+- PostgreSQL
+
+Authentication:
+- Supabase Auth
+
+Use a clean modular architecture.
+
+Do not introduce unnecessary libraries.
+
+==================================================
+3. PROJECT STRUCTURE
+==================================================
+
+Create a scalable structure similar to:
+
+/app
+/components
+/components/ui
+/lib
+/lib/supabase
+/lib/ai
+/lib/voice
+/lib/calendar
+/lib/reminders
+/lib/context
+/lib/time
+/hooks
+/types
+/supabase
+/supabase/migrations
+/design
+
+Keep AI, voice, calendar and reminder services separated even though they are not implemented yet.
+
+Create placeholder service interfaces where appropriate.
+
+==================================================
+4. AUTHENTICATION
+==================================================
+
+Implement Supabase authentication.
+
+Support:
+
+- Email/password signup
+- Email/password login
+- Logout
+- Protected application routes
+- Session persistence
+- Auth state handling
+- Basic authentication error handling
+
+Create:
+
+/login
+/signup
+
+After successful login, redirect the user to:
+
+/app
+
+Unauthenticated users should not be able to access protected application pages.
+
+Use secure server-side authentication patterns.
+
+Never expose Supabase service-role keys in the browser.
+
+==================================================
+5. DATABASE
+==================================================
+
+Create the following PostgreSQL tables.
+
+------------------------------------------
+TABLE: profiles
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+user_id UUID REFERENCES auth.users(id)
+name TEXT
+timezone TEXT
+preferred_language TEXT
+created_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+Each authenticated user should have one profile.
+
+Default:
+
+preferred_language = "en"
+
+timezone should be detected where possible but allow the user to change it later.
+
+------------------------------------------
+TABLE: conversations
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+user_id UUID REFERENCES auth.users(id)
+title TEXT
+created_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+------------------------------------------
+TABLE: messages
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+conversation_id UUID REFERENCES conversations(id)
+user_id UUID REFERENCES auth.users(id)
+role TEXT
+content TEXT
+language TEXT
+created_at TIMESTAMPTZ
+
+role should eventually support:
+
+user
+assistant
+system
+
+Add appropriate constraints.
+
+------------------------------------------
+TABLE: people
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+user_id UUID REFERENCES auth.users(id)
+name TEXT
+relationship TEXT
+notes TEXT
+created_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+Examples:
+
+Rahul
+Investor
+
+Mom
+Family
+
+John
+Friend
+
+------------------------------------------
+TABLE: events
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+user_id UUID REFERENCES auth.users(id)
+title TEXT
+description TEXT
+person_id UUID REFERENCES people(id)
+start_time TIMESTAMPTZ
+end_time TIMESTAMPTZ
+timezone TEXT
+location TEXT
+status TEXT
+source TEXT
+created_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+status can eventually support:
+
+scheduled
+cancelled
+completed
+
+source can eventually support:
+
+manual
+ai
+calendar_sync
+
+------------------------------------------
+TABLE: reminders
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+user_id UUID REFERENCES auth.users(id)
+title TEXT
+description TEXT
+trigger_time TIMESTAMPTZ
+timezone TEXT
+related_event_id UUID REFERENCES events(id)
+status TEXT
+created_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+status:
+
+pending
+completed
+cancelled
+
+------------------------------------------
+TABLE: memories
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+user_id UUID REFERENCES auth.users(id)
+memory_type TEXT
+content TEXT
+importance INTEGER
+confidence NUMERIC
+source_message_id UUID REFERENCES messages(id)
+created_at TIMESTAMPTZ
+expires_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+IMPORTANT:
+
+Do NOT automatically save every conversation as memory.
+
+The future AI system will decide what information is important enough to store.
+
+------------------------------------------
+TABLE: preferences
+------------------------------------------
+
+Fields:
+
+id UUID PRIMARY KEY
+user_id UUID REFERENCES auth.users(id)
+preference_key TEXT
+preference_value JSONB
+created_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+Examples:
+
+preferred_reminder_time
+preferred_language
+working_hours
+notification_preferences
+
+==================================================
+6. DATABASE RELATIONSHIPS
+==================================================
+
+Implement these relationships:
+
+User
+ ├── Profile
+ ├── Conversations
+ │    └── Messages
+ ├── People
+ ├── Events
+ │    └── Person
+ ├── Reminders
+ │    └── Event
+ ├── Memories
+ │    └── Source Message
+ └── Preferences
+
+Use UUIDs.
+
+Use foreign keys.
+
+Use timestamps.
+
+Add appropriate indexes for:
+
+user_id
+conversation_id
+event start_time
+reminder trigger_time
+memory user_id
+
+==================================================
+7. ROW LEVEL SECURITY
+==================================================
+
+This is extremely important.
+
+Enable Row Level Security on every user-owned table.
+
+Users must only be able to:
+
+SELECT their own data
+INSERT their own data
+UPDATE their own data
+DELETE their own data
+
+A user must NEVER be able to access another user's:
+
+- conversations
+- messages
+- people
+- events
+- reminders
+- memories
+- preferences
+- profile
+
+Create proper Supabase RLS policies.
+
+Do not use insecure "allow all" policies.
+
+==================================================
+8. DATABASE MIGRATIONS
+==================================================
+
+Create proper Supabase migration files.
+
+Do not manually create tables only through the dashboard.
+
+The database should be reproducible from the migration files.
+
+Add useful indexes and constraints.
+
+==================================================
+9. ENVIRONMENT VARIABLES
+==================================================
+
+Create a clean environment variable structure.
+
+Use:
+
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+Do not hardcode credentials.
+
+Create a .env.example file.
+
+Never expose service-role credentials to the frontend.
+
+==================================================
+10. BASIC APPLICATION SHELL
+==================================================
+
+Create a minimal authenticated application shell.
+
+After login:
+
+/app
+
+Show a very simple temporary screen:
+
+"Welcome to [APP NAME]"
+
+and:
+
+"Your personal AI assistant is being prepared."
+
+Also show:
+
+- user name
+- logout button
+
+DO NOT design the final premium UI yet.
+
+This is only a placeholder to verify authentication and routing.
+
+==================================================
+11. TYPESCRIPT TYPES
+==================================================
+
+Create TypeScript types/interfaces for:
+
+Profile
+Conversation
+Message
+Person
+Event
+Reminder
+Memory
+Preference
+
+Keep database types organized so later AI and UI modules can reuse them.
+
+==================================================
+12. FUTURE SERVICE INTERFACES
+==================================================
+
+Create placeholder interfaces for:
+
+AIService
+VoiceService
+CalendarService
+ReminderService
+ContextService
+MemoryService
+TimeService
+
+Do not implement their functionality yet.
+
+Example concept:
+
+AIService
+- understandMessage()
+- generateResponse()
+
+CalendarService
+- createEvent()
+- updateEvent()
+- deleteEvent()
+- listEvents()
+
+ReminderService
+- createReminder()
+- updateReminder()
+- deleteReminder()
+
+ContextService
+- getRelevantContext()
+
+These should be interfaces/stubs only for now.
+
+==================================================
+13. CODE QUALITY
+==================================================
+
+Use:
+
+- TypeScript
+- clean components
+- reusable utilities
+- clear naming
+- modular architecture
+- error handling
+- loading states where needed
+- no duplicated code
+
+Do not create one giant component.
+
+Do not put database logic directly inside UI components.
+
+Keep database access inside appropriate service/server modules.
+
+==================================================
+14. SECURITY
+==================================================
+
+Implement:
+
+- Supabase RLS
+- protected routes
+- secure authentication
+- server-side validation
+- no exposed secrets
+- no service-role key in client code
+
+Never trust user IDs sent from the frontend.
+
+Always derive the authenticated user from the Supabase session/server authentication context.
+
+==================================================
+15. RESPONSIVENESS
+==================================================
+
+The temporary Phase 1 interface should work on:
+
+- desktop
+- tablet
+- mobile
+
+Do not spend time on visual polish yet.
+
+==================================================
+16. DO NOT BUILD YET
+==================================================
+
+Do NOT implement:
+
+❌ Voice recording
+❌ Speech-to-text
+❌ Text-to-speech
+❌ LLM integration
+❌ AI intent detection
+❌ AI memory extraction
+❌ Calendar integration
+❌ Google Calendar
+❌ Apple Calendar
+❌ Reminder notifications
+❌ Push notifications
+❌ VoiceOrb
+❌ Premium animations
+❌ Final dashboard
+❌ Final calendar UI
+❌ Final reminder UI
+
+Those belong to later phases.
+
+==================================================
+17. PHASE 1 SUCCESS CRITERIA
+==================================================
+
+Phase 1 is complete only when:
+
+1. User can create an account.
+2. User can log in.
+3. User can log out.
+4. Protected /app route works.
+5. Supabase database is connected.
+6. All required tables exist.
+7. Relationships work.
+8. RLS policies are implemented.
+9. User data is isolated correctly.
+10. TypeScript types exist.
+11. Project architecture is modular.
+12. Environment variables are configured safely.
+13. Migration files are created.
+14. Application runs without build errors.
+
+==================================================
+18. IMPORTANT DEVELOPMENT RULE
+==================================================
+
+Do not move to Phase 2 automatically.
+
+After completing Phase 1:
+
+1. Run the application.
+2. Check authentication.
+3. Check database connection.
+4. Check RLS.
+5. Check TypeScript/build errors.
+6. Fix any issues.
+7. Give me a concise summary of what was built.
+8. STOP.
+
+Wait for my next instruction.
+
+The goal is to create a strong foundation, not to rush into features.

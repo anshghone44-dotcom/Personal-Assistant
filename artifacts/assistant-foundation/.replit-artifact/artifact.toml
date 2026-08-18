@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Personal AI Assistant"
+description = "Phase 1 foundation for a multilingual conversational calendar and reminder assistant, with Supabase email authentication, a protected application shell, and a secure PostgreSQL data model."
+version = "1.0.0"
+id = "artifacts/assistant-foundation"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24037
+
+[services.development]
+run = "pnpm --filter @workspace/assistant-foundation run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/assistant-foundation", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/assistant-foundation/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24037"
+BASE_PATH = "/"

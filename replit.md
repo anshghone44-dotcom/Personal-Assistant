@@ -1,6 +1,6 @@
-# [Project name]
+# Personal AI Assistant
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Phase 1 foundation for a multilingual conversational calendar and reminder assistant. This phase provides Supabase email authentication, a protected app shell, and the PostgreSQL data model/RLS foundation for later AI, voice, calendar, reminder, and memory work.
 
 ## Run & Operate
 
@@ -9,7 +9,7 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required app secrets: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ## Stack
 
@@ -22,15 +22,22 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/assistant-foundation` — Phase 1 web app
+- `artifacts/assistant-foundation/supabase/migrations` — reproducible Supabase schema and RLS
+- `artifacts/assistant-foundation/src/types/domain.ts` — shared domain contracts
+- `artifacts/assistant-foundation/src/lib` — Supabase access and future service boundaries
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Supabase Auth owns identity; the browser only receives the public URL and anon key.
+- A database trigger creates one profile per auth user, while the client updates timezone metadata after sign-in.
+- RLS policies use `auth.uid()` for every user-owned table and validate cross-table ownership for related records.
+- Future AI, voice, calendar, reminder, context, memory, and time responsibilities are separated behind interfaces before implementation.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Phase 1: account creation, login/logout, session persistence, protected `/app`, and secure foundation schema.
+- Later phases: conversational AI, voice, calendar, reminders, multilingual context, and memory.
 
 ## User preferences
 

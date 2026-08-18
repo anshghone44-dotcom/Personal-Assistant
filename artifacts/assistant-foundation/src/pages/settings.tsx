@@ -1,0 +1,32 @@
+import { useState } from 'react';
+import { Check, Globe2, Headphones, LockKeyhole, Moon, ShieldCheck, UserRound, Volume2, Waves } from 'lucide-react';
+import { AppShell } from '@/components/assistant/AppShell';
+import { PageTransition } from '@/components/assistant/PageTransition';
+import { SectionHeading } from '@/components/assistant/Navigation';
+import { SettingRow, SettingsSection } from '@/components/assistant/SettingsSection';
+import { useAuth } from '@/hooks/use-auth';
+
+function Toggle({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
+  return <button type="button" data-testid={`button-toggle-${label.toLowerCase().replaceAll(' ', '-')}`} aria-label={label} aria-pressed={checked} onClick={onChange} className={`relative h-6 w-10 rounded-full border transition-colors ${checked ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]' : 'border-[hsl(var(--border))] bg-[hsl(var(--secondary))]'}`}><span className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full transition-[left,background] ${checked ? 'left-[21px] bg-[hsl(var(--primary-foreground))]' : 'left-[3px] bg-[hsl(var(--muted-foreground))]'}`} /></button>;
+}
+
+export function SettingsPage() {
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState(true);
+  const [memory, setMemory] = useState(true);
+  const [haptics, setHaptics] = useState(false);
+  const [theme, setTheme] = useState('Charcoal');
+  const [saved, setSaved] = useState(false);
+  function saveProfile() { setSaved(true); window.setTimeout(() => setSaved(false), 1800); }
+  return <AppShell title="Settings"><PageTransition className="mx-auto max-w-[920px] px-5 py-10 sm:px-8 lg:px-10 lg:py-14"><SectionHeading eyebrow="How this space feels" title="Settings" detail="A few quiet choices. Change what you need, then return to the conversation." /><div className="mt-14">
+    <SettingsSection title="Profile" detail="The details I use to make the space feel like yours."><SettingRow label="Name" detail={user?.user_metadata?.name || 'Your name'} onClick={saveProfile}>Edit</SettingRow><SettingRow label="Email" detail={user?.email || 'Private email'}><span className="font-mono text-[10px] text-[hsl(var(--muted-foreground))]">Verified</span></SettingRow>{saved && <p data-testid="status-settings-saved" className="mt-3 flex items-center gap-1.5 text-[10px] text-[hsl(var(--primary))]"><Check size={12} /> Profile choice saved locally for this demo.</p>}</SettingsSection>
+    <SettingsSection title="Language" detail="The language Morrow uses when it speaks with you."><SettingRow label="Conversation language" detail="English (United States)" onClick={() => undefined}>English <Globe2 size={14} /></SettingRow></SettingsSection>
+    <SettingsSection title="Voice" detail="A voice with room around it."><SettingRow label="Voice" detail="Warm · measured"><button type="button" data-testid="button-voice-choice" className="flex items-center gap-2 text-[11px] font-semibold text-[hsl(var(--primary))]">Sol <Volume2 size={14} /></button></SettingRow><SettingRow label="Voice response" detail="Morrow answers after a short pause"><Toggle checked={haptics} onChange={() => setHaptics(!haptics)} label="voice response" /></SettingRow></SettingsSection>
+    <SettingsSection title="Notifications" detail="Only the things you explicitly ask me to hold."><SettingRow label="Gentle reminders" detail="A quiet nudge when something is due"><Toggle checked={notifications} onChange={() => setNotifications(!notifications)} label="gentle reminders" /></SettingRow><SettingRow label="Sound and haptics" detail="Subtle feedback when a reminder arrives"><Toggle checked={haptics} onChange={() => setHaptics(!haptics)} label="sound and haptics" /></SettingRow></SettingsSection>
+    <SettingsSection title="Calendar" detail="A read-only view of the shape of your day."><SettingRow label="Calendar view" detail="Personal calendar · local demo"><button type="button" data-testid="button-calendar-source" className="text-[11px] font-semibold text-[hsl(var(--primary))]">Personal <Waves size={14} /></button></SettingRow><SettingRow label="Show travel time" detail="Keep a little air between places"><Toggle checked={true} onChange={() => undefined} label="show travel time" /></SettingRow></SettingsSection>
+    <SettingsSection title="Memory" detail="You are always in charge of what stays close."><SettingRow label="Remember useful context" detail="Save meaningful details from conversations"><Toggle checked={memory} onChange={() => setMemory(!memory)} label="remember useful context" /></SettingRow><SettingRow label="Review memories" detail="See, edit, or remove anything I remember" onClick={() => window.dispatchEvent(new Event('memory-settings'))}>Open memory <LockKeyhole size={13} /></SettingRow></SettingsSection>
+    <SettingsSection title="Privacy" detail="Your private space should stay private."><SettingRow label="Data handling" detail="Demo conversations remain in this browser session"><ShieldCheck size={16} className="text-[hsl(var(--primary))]" /></SettingRow><SettingRow label="Permissions" detail="No microphone or calendar connection is active"><button type="button" data-testid="button-review-permissions" className="text-[11px] font-semibold text-[hsl(var(--primary))]">Review</button></SettingRow></SettingsSection>
+    <SettingsSection title="Appearance" detail="A little atmosphere, never distraction."><SettingRow label="Theme" detail="Choose the tone of your space"><div className="flex items-center gap-1.5">{['Charcoal', 'Dusk'].map((choice) => <button key={choice} type="button" data-testid={`button-theme-${choice.toLowerCase()}`} onClick={() => setTheme(choice)} className={`px-2.5 py-1.5 text-[10px] font-semibold ${theme === choice ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]' : 'border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))]'}`}>{choice}</button>)}</div></SettingRow><SettingRow label="Ambient detail" detail="Texture and soft lighting"><Moon size={16} className="text-[hsl(var(--muted-foreground))]" /></SettingRow></SettingsSection>
+    <div className="mt-5 flex items-center gap-3 border-t border-[hsl(var(--border)/.75)] pt-7 text-[10px] text-[hsl(var(--muted-foreground))]"><UserRound size={14} /> Morrow keeps this space close to the human scale.</div>
+  </div></PageTransition></AppShell>;
+}

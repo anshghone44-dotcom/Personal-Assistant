@@ -1,0 +1,17 @@
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Plus, Sparkles } from 'lucide-react';
+import { AppShell } from '@/components/assistant/AppShell';
+import { MemoryCard } from '@/components/assistant/MemoryCard';
+import { PageTransition } from '@/components/assistant/PageTransition';
+import { SectionHeading } from '@/components/assistant/Navigation';
+import { memories as initialMemories, type Memory } from '@/data/demo';
+
+export function MemoryPage() {
+  const [items, setItems] = useState<Memory[]>(initialMemories);
+  const [creating, setCreating] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newBody, setNewBody] = useState('');
+  function create() { if (!newTitle.trim() || !newBody.trim()) return; setItems((current) => [{ id: `memory-${Date.now()}`, title: newTitle.trim(), body: newBody.trim(), tag: 'A new thought', updated: 'Saved just now' }, ...current]); setNewTitle(''); setNewBody(''); setCreating(false); }
+  return <AppShell title="Memory"><PageTransition className="mx-auto max-w-[1000px] px-5 py-10 sm:px-8 lg:px-10 lg:py-14"><SectionHeading eyebrow="A private continuity" title="What I remember" detail="Not a database of you. The small pieces that make a conversation feel like it has a before." action={<button type="button" data-testid="button-create-memory" onClick={() => setCreating(true)} className="inline-flex h-10 items-center gap-2 border border-[hsl(var(--border))] px-3 text-[11px] font-semibold text-[hsl(var(--primary))] hover:bg-[hsl(var(--secondary))]"><Plus size={14} /> Add thought</button>} /><AnimatePresence>{creating && <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="mt-10 border border-[hsl(var(--primary)/.25)] bg-[hsl(var(--primary)/.05)] p-5 sm:p-6"><div className="flex items-center gap-2 text-[hsl(var(--primary))]"><Sparkles size={15} /><span className="font-mono text-[9px] uppercase tracking-[.18em]">Keep a thought close</span></div><input data-testid="input-new-memory-title" value={newTitle} onChange={(event) => setNewTitle(event.target.value)} placeholder="A short title" className="mt-5 w-full border-b border-[hsl(var(--border))] bg-transparent pb-2 font-serif text-2xl outline-none placeholder:text-[hsl(var(--muted-foreground)/.6)] focus:border-[hsl(var(--primary))]" /><textarea data-testid="input-new-memory-body" value={newBody} onChange={(event) => setNewBody(event.target.value)} placeholder="What should I remember?" rows={3} className="mt-4 w-full resize-none bg-transparent text-xs leading-6 outline-none placeholder:text-[hsl(var(--muted-foreground)/.6)]" /><div className="mt-4 flex justify-end gap-3"><button type="button" data-testid="button-cancel-new-memory" onClick={() => setCreating(false)} className="px-3 py-2 text-[11px] font-semibold text-[hsl(var(--muted-foreground))]">Cancel</button><button type="button" data-testid="button-save-new-memory" onClick={create} className="bg-[hsl(var(--primary))] px-3 py-2 text-[11px] font-semibold text-[hsl(var(--primary-foreground))]">Save thought</button></div></motion.div>}</AnimatePresence><div className="mt-14 grid gap-4 sm:grid-cols-2">{items.map((item) => <MemoryCard key={item.id} memory={item} onDelete={(id) => setItems((current) => current.filter((entry) => entry.id !== id))} onUpdate={(next) => setItems((current) => current.map((entry) => entry.id === next.id ? next : entry))} />)}</div></PageTransition></AppShell>;
+}

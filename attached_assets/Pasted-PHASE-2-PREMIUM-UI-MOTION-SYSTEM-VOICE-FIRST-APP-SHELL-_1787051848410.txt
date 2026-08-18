@@ -1,0 +1,1057 @@
+PHASE 2 — PREMIUM UI, MOTION SYSTEM & VOICE-FIRST APP SHELL
+
+Continue building the multilingual conversational AI calendar and reminder assistant.
+
+IMPORTANT:
+Phase 1 is already complete.
+
+Phase 2 is ONLY about:
+- visual identity
+- design system
+- premium UI
+- motion design
+- responsive layouts
+- voice-first interaction shell
+- core navigation
+- realistic demo states
+
+Do NOT implement the real AI, speech-to-text, text-to-speech, calendar API, or reminder backend yet.
+
+Use realistic mock data wherever necessary.
+
+==================================================
+1. PRODUCT DESIGN PHILOSOPHY
+==================================================
+
+The product should feel like:
+
+"An intelligent personal space that you can talk to."
+
+The interface should NOT feel like:
+- a SaaS dashboard
+- a CRM
+- a generic AI chatbot
+- a ChatGPT clone
+- a productivity template
+- a developer tool
+
+The interface should feel:
+
+- Premium
+- Calm
+- Intelligent
+- Minimal
+- Personal
+- Cinematic
+- Fast
+- Human
+- Voice-first
+
+CORE DESIGN IDEA:
+
+"The interface should disappear and the conversation should become the product."
+
+==================================================
+2. VISUAL DIRECTION
+==================================================
+
+Use a sophisticated dark visual system.
+
+Base background:
+Near-black / charcoal.
+
+Example:
+
+Background:
+#08090B
+
+Primary surface:
+#101217
+
+Secondary surface:
+#151820
+
+Border:
+#242832
+
+Primary text:
+#F5F5F5
+
+Secondary text:
+#9297A3
+
+Muted text:
+#626875
+
+Use ONE primary accent color.
+
+Suggested accent:
+Soft violet / lavender.
+
+Example:
+#8B7CFF
+
+Optional secondary warm accent:
+#D6B98C
+
+IMPORTANT:
+
+Do not use bright neon gradients everywhere.
+
+Do not make everything glow.
+
+Do not use excessive glassmorphism.
+
+Do not use excessive rounded cards.
+
+Premium should come from:
+- spacing
+- typography
+- contrast
+- depth
+- motion
+- subtle lighting
+- hierarchy
+
+==================================================
+3. TYPOGRAPHY
+==================================================
+
+Use a premium modern sans-serif.
+
+Preferred:
+Geist / Inter / SF-style system typography.
+
+Create typography tokens:
+
+Display:
+48–64px
+
+Large heading:
+32–40px
+
+Heading:
+24–28px
+
+Body:
+15–17px
+
+Small:
+13–14px
+
+Caption:
+11–12px
+
+Use generous line-height.
+
+Do not use oversized text everywhere.
+
+Typography should feel calm and editorial.
+
+==================================================
+4. DESIGN TOKENS
+==================================================
+
+Create a centralized design system.
+
+Create:
+
+/design/tokens.ts
+/design/colors.ts
+/design/typography.ts
+/design/spacing.ts
+/design/motion.ts
+
+Do NOT hardcode design values repeatedly throughout components.
+
+Create reusable variables for:
+
+colors
+spacing
+radius
+shadows
+blur
+typography
+animation duration
+animation easing
+
+==================================================
+5. APP STRUCTURE
+==================================================
+
+Create the main application shell.
+
+Desktop:
+
+Left:
+minimal navigation
+
+Center:
+primary conversational experience
+
+Right:
+contextual information when necessary
+
+Mobile:
+
+Bottom navigation.
+
+Navigation items:
+
+Home
+Calendar
+Reminders
+Memory
+Settings
+
+Keep navigation visually minimal.
+
+Do not use large sidebar cards.
+
+==================================================
+6. HOME SCREEN
+==================================================
+
+This is the most important screen.
+
+Do NOT create a traditional dashboard.
+
+Create a calm voice-first home screen.
+
+Structure:
+
+Top:
+
+Current time
+Date
+
+Example:
+
+10:42 AM
+Tuesday, August 18
+
+Center:
+
+Large animated VoiceOrb
+
+Below:
+
+"Talk to me"
+
+Small supporting text:
+
+"Tell me what's on your mind."
+
+Below the voice interaction:
+
+TODAY
+
+Show only important events/reminders.
+
+Example:
+
+10:00
+Team meeting
+
+15:00
+Rahul · Investor meeting
+
+18:00
+Finish presentation
+
+Do not overload the screen.
+
+The user's attention should naturally move toward the VoiceOrb.
+
+==================================================
+7. VOICE ORB
+==================================================
+
+Create a reusable:
+
+VoiceOrb component.
+
+This is the main visual identity of the product.
+
+The VoiceOrb should be visually sophisticated.
+
+Do NOT create a simple microphone circle.
+
+Create a soft luminous orb with subtle depth.
+
+Use:
+- radial gradients
+- blur
+- layered opacity
+- subtle light
+- animation
+- audio-reactive placeholder behavior
+
+Create six states.
+
+------------------------------------------
+IDLE
+------------------------------------------
+
+Appearance:
+
+Small luminous orb.
+
+Animation:
+
+Slow breathing.
+
+Approximately:
+
+scale:
+1 → 1.025 → 1
+
+Duration:
+4 seconds
+
+Very subtle.
+
+------------------------------------------
+LISTENING
+------------------------------------------
+
+Orb becomes slightly larger.
+
+Outer rings appear.
+
+Create subtle animated audio waves.
+
+Use mock audio values for now.
+
+Animation should react smoothly.
+
+Text:
+
+"Listening..."
+
+------------------------------------------
+THINKING
+------------------------------------------
+
+Orb remains stable but develops subtle internal movement.
+
+Use slow radial movement.
+
+Text:
+
+"Thinking..."
+
+Do NOT use a generic loading spinner.
+
+------------------------------------------
+SPEAKING
+------------------------------------------
+
+Orb responds to simulated audio amplitude.
+
+Use:
+
+scale
+opacity
+outer ring movement
+
+Text:
+
+"Speaking..."
+
+------------------------------------------
+SUCCESS
+------------------------------------------
+
+When an interaction completes:
+
+Create one elegant pulse.
+
+Then return to idle.
+
+------------------------------------------
+ERROR
+------------------------------------------
+
+Use:
+
+small horizontal movement
+
+subtle opacity change
+
+Text:
+
+"Something went wrong."
+
+Do not use aggressive red screens.
+
+==================================================
+8. VOICE INTERACTION PANEL
+==================================================
+
+When the user clicks the VoiceOrb:
+
+Transition into listening mode.
+
+Create a beautiful minimal interaction area.
+
+Show:
+
+"Listening..."
+
+Then simulated waveform.
+
+At the bottom:
+
+Cancel
+
+The transition should feel fluid.
+
+Do not open a generic modal.
+
+==================================================
+9. CONVERSATION UI
+==================================================
+
+Create a conversational timeline.
+
+DO NOT make it look like ChatGPT.
+
+Do not use:
+
+large message bubbles
+avatar circles
+excessive borders
+
+Instead:
+
+User:
+
+"I have a meeting with Rahul next Friday."
+
+Assistant:
+
+"Got it."
+
+Then show a contextual event object:
+
+--------------------------------
+Rahul
+Meeting
+
+Friday · 3:00 PM
+
+Add to calendar
+--------------------------------
+
+The contextual object should appear with:
+
+fade
+scale
+blur reduction
+
+animation.
+
+==================================================
+10. CONTEXT OBJECTS
+==================================================
+
+Create reusable components:
+
+ContextEvent
+ContextReminder
+ContextPerson
+ContextMemory
+ContextDate
+
+These should visually communicate what the AI understood.
+
+Example:
+
+User:
+"Remind me to call Rahul tomorrow."
+
+The UI should eventually show:
+
+REMINDER
+
+Call Rahul
+
+Tomorrow · 10:00 AM
+
+But for Phase 2 use mock/demo data.
+
+==================================================
+11. TODAY TIMELINE
+==================================================
+
+Create a premium vertical timeline.
+
+Example:
+
+TODAY
+
+09:00
+────────────
+Breakfast
+
+10:00
+────────────
+Team meeting
+
+15:00
+────────────
+Rahul
+Investor meeting
+
+18:00
+────────────
+Presentation
+
+Create a current-time indicator.
+
+The indicator should subtly move with time.
+
+Use motion when events appear.
+
+==================================================
+12. CALENDAR SCREEN
+==================================================
+
+Create a premium calendar experience.
+
+Do NOT copy Google Calendar.
+
+Primary view:
+
+Vertical timeline.
+
+Allow switching:
+
+Day
+Week
+Month
+
+Use minimal controls.
+
+Events should have subtle depth.
+
+When selecting an event:
+
+Animate the event into an expanded detail view.
+
+Use a shared-element transition.
+
+Do NOT abruptly replace the page.
+
+==================================================
+13. REMINDERS SCREEN
+==================================================
+
+Create:
+
+Upcoming
+Today
+Completed
+
+sections.
+
+Example:
+
+TODAY
+
+5:30 PM
+
+Call Rahul
+
+"You mentioned this earlier."
+
+Buttons:
+
+Done
+Later
+
+Use subtle interaction animations.
+
+When marked Done:
+
+The reminder should smoothly transition into Completed.
+
+==================================================
+14. MEMORY SCREEN
+==================================================
+
+Create:
+
+"What I Remember"
+
+This is one of the product's signature screens.
+
+Use human-readable memory cards.
+
+Example:
+
+Rahul
+Investor
+
+You prefer evening reminders.
+
+You have a meeting with Rahul Monday.
+
+Do NOT create a technical vector database visualization.
+
+Make it feel personal.
+
+Each memory should allow:
+
+View
+Edit
+Delete
+
+Use mock data.
+
+==================================================
+15. SETTINGS
+==================================================
+
+Create a clean settings screen.
+
+Sections:
+
+Profile
+
+Language
+
+Voice
+
+Notifications
+
+Calendar
+
+Memory
+
+Privacy
+
+Appearance
+
+Do not make it look like an enterprise admin panel.
+
+==================================================
+16. MOTION DESIGN SYSTEM
+==================================================
+
+Use Motion / Framer Motion.
+
+Create centralized motion presets.
+
+Examples:
+
+fadeIn
+fadeUp
+scaleIn
+springIn
+slideIn
+sharedElement
+successPulse
+errorShake
+pageTransition
+
+Use spring-based animations where appropriate.
+
+Motion should feel:
+
+Fast
+Smooth
+Natural
+Subtle
+
+Do not animate everything.
+
+Every animation should communicate:
+
+- state
+- hierarchy
+- feedback
+- continuity
+
+==================================================
+17. PAGE TRANSITIONS
+==================================================
+
+When moving between:
+
+Home
+Calendar
+Reminders
+Memory
+Settings
+
+use subtle transitions.
+
+Do NOT use dramatic page animations.
+
+Use:
+
+opacity
+small translation
+blur
+
+Duration:
+
+approximately 200–350ms.
+
+==================================================
+18. SHARED ELEMENT TRANSITIONS
+==================================================
+
+Implement shared transitions where possible.
+
+Example:
+
+Timeline event
+
+↓
+
+User clicks event
+
+↓
+
+Event expands into detail view.
+
+The same visual object should appear to transform rather than disappear and reappear.
+
+This should become a major part of the product's premium feel.
+
+==================================================
+19. MICRO INTERACTIONS
+==================================================
+
+Add subtle feedback for:
+
+Button hover
+Button press
+Voice activation
+Event creation
+Reminder completion
+Calendar movement
+Memory creation
+Navigation
+Errors
+
+Examples:
+
+Button:
+small scale-down on press.
+
+Reminder completion:
+fade + slide.
+
+Memory creation:
+small glow + fade-in.
+
+Calendar event movement:
+smooth position transition.
+
+==================================================
+20. SOUND DESIGN PLACEHOLDERS
+==================================================
+
+Do not implement final audio yet.
+
+Create hooks/interfaces for:
+
+voiceStartSound
+voiceListeningSound
+voiceResponseSound
+reminderSound
+
+The actual sounds will be added later.
+
+==================================================
+21. RESPONSIVE DESIGN
+==================================================
+
+Desktop:
+
+Large central VoiceOrb.
+
+Conversation and contextual information.
+
+Tablet:
+
+Adaptive layout.
+
+Mobile:
+
+Voice-first.
+
+The VoiceOrb should become the primary interaction.
+
+Bottom navigation:
+
+Home
+Calendar
+Reminders
+Memory
+Settings
+
+Make sure the UI works at:
+
+320px
+375px
+390px
+430px
+768px
+1024px
+1440px+
+
+==================================================
+22. MOBILE EXPERIENCE
+==================================================
+
+On mobile, prioritize:
+
+VoiceOrb
+Conversation
+Today's timeline
+
+Do not squeeze desktop UI into mobile.
+
+Redesign layouts specifically for mobile.
+
+The VoiceOrb should remain visually dominant.
+
+==================================================
+23. LOADING STATES
+==================================================
+
+Create premium loading states.
+
+Do NOT use generic:
+
+"Loading..."
+
+spinner.
+
+Use:
+
+subtle shimmer
+soft opacity transitions
+VoiceOrb thinking state
+
+==================================================
+24. EMPTY STATES
+==================================================
+
+Create elegant empty states.
+
+Example:
+
+No reminders:
+
+"Nothing to remember yet."
+
+"Tell me something you don't want to forget."
+
+Button:
+
+Talk to me
+
+No events:
+
+"Your day is open."
+
+==================================================
+25. ERROR STATES
+==================================================
+
+Create friendly errors.
+
+Example:
+
+"I couldn't understand that."
+
+"Try saying it another way."
+
+Do not expose technical errors to the user.
+
+==================================================
+26. ACCESSIBILITY
+==================================================
+
+Implement:
+
+- keyboard navigation
+- focus states
+- semantic HTML
+- screen-reader labels
+- sufficient contrast
+- reduced-motion support
+- accessible VoiceOrb controls
+
+If reduced motion is enabled:
+
+Disable continuous orb animation.
+
+Use simple opacity and state transitions.
+
+==================================================
+27. PERFORMANCE
+==================================================
+
+Important:
+
+Do not create heavy animations that hurt performance.
+
+Avoid unnecessary:
+
+- Three.js
+- WebGL
+- particle systems
+- huge background videos
+
+Use CSS and Motion wherever possible.
+
+The application should feel fast even on mid-range devices.
+
+==================================================
+28. DEMO DATA
+==================================================
+
+Create realistic demo data.
+
+Example:
+
+User:
+Ansh
+
+Events:
+
+Team meeting
+10:00 AM
+
+Rahul · Investor meeting
+3:00 PM
+
+Presentation
+6:00 PM
+
+Reminders:
+
+Call Rahul
+5:30 PM
+
+Review presentation
+7:00 PM
+
+Memories:
+
+Rahul is an investor.
+
+User prefers afternoon meetings.
+
+User prefers evening reminders.
+
+Use this only for UI demonstration.
+
+Do not write these values permanently into the database for every user.
+
+==================================================
+29. COMPONENT ARCHITECTURE
+==================================================
+
+Create reusable components:
+
+VoiceOrb
+VoiceInteraction
+ConversationTimeline
+ConversationMessage
+ContextEvent
+ContextReminder
+ContextPerson
+ContextMemory
+TodayTimeline
+TimelineEvent
+CalendarView
+ReminderCard
+MemoryCard
+Navigation
+BottomNavigation
+TopBar
+SettingsSection
+PageTransition
+
+Do not create giant components.
+
+==================================================
+30. FINAL QUALITY BAR
+==================================================
+
+The final Phase 2 result should look like a premium consumer AI product.
+
+It should NOT look like:
+
+- a Tailwind demo
+- a Supabase starter
+- a generic dashboard
+- an AI-generated website
+- a ChatGPT clone
+
+It should feel:
+
+Calm.
+Minimal.
+Premium.
+Personal.
+Intelligent.
+
+The VoiceOrb should be the visual signature.
+
+The timeline should be the user's visual understanding of time.
+
+Context cards should show what the AI understands.
+
+The interface should make the user think:
+
+"I just want to talk to it."
+
+==================================================
+31. IMPORTANT
+==================================================
+
+Use mock data and simulated AI/voice states for now.
+
+Do not implement actual:
+
+- speech recognition
+- text-to-speech
+- LLM
+- Google Calendar
+- Apple Calendar
+- push notifications
+
+Those will be implemented in later phases.
+
+Before finishing:
+
+1. Run the application.
+2. Check desktop.
+3. Check mobile.
+4. Check all navigation.
+5. Check animations.
+6. Check reduced-motion behavior.
+7. Check for TypeScript errors.
+8. Check for build errors.
+9. Remove generic placeholder UI.
+10. Ensure visual consistency across all screens.
+
+Do NOT move to Phase 3 automatically.
+
+After Phase 2 is complete, provide:
+- what was built
+- components created
+- screens created
+- animation system created
+- any remaining issues
+
+Then STOP and wait for the next instruction.

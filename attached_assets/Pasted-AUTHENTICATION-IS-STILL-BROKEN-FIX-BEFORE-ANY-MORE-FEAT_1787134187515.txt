@@ -1,0 +1,331 @@
+AUTHENTICATION IS STILL BROKEN — FIX BEFORE ANY MORE FEATURES
+
+Phase 1 and Phase 2 are complete, but the Sign Up action still does not work.
+
+IMPORTANT:
+Do NOT start Phase 3.
+Do NOT redesign the UI.
+Do NOT add new features.
+Do NOT replace the existing Supabase project.
+
+The priority is to make the existing Sign Up button actually work.
+
+==================================================
+1. TRACE THE COMPLETE SIGNUP FLOW
+==================================================
+
+Start from the visible Sign Up button and trace:
+
+Sign Up button
+→ form submission
+→ signup handler
+→ Supabase Auth
+→ user creation
+→ profile creation
+→ session
+→ redirect to /app
+
+Find exactly where this chain breaks.
+
+Do not assume the problem is Supabase.
+
+==================================================
+2. CHECK THE SIGN UP BUTTON
+==================================================
+
+Inspect the actual component containing the Sign Up button.
+
+Verify:
+
+- button is clickable
+- button is not disabled
+- button is not covered by another element
+- pointer-events are not disabled
+- button is inside the correct form
+- button uses type="submit" if using a form
+- form has an onSubmit handler
+- onSubmit calls the signup function
+
+Add temporary logging:
+
+console.log("SIGNUP BUTTON CLICKED");
+
+and:
+
+console.log("SIGNUP FORM SUBMITTED");
+
+When I click Sign Up, at least one of these must appear in the browser console.
+
+If neither appears, fix the UI/event handling first.
+
+==================================================
+3. CHECK THE SIGNUP HANDLER
+==================================================
+
+Find the actual signup function.
+
+It must execute when the form is submitted.
+
+Add temporary logs:
+
+console.log("Starting signup");
+
+console.log("Email:", email);
+
+Do NOT log the password.
+
+Then call Supabase authentication.
+
+Use the existing Supabase client.
+
+Conceptually:
+
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password
+});
+
+Then:
+
+console.log("Supabase signup response", { data, error });
+
+Never silently catch errors.
+
+==================================================
+4. CHECK SUPABASE ENVIRONMENT VARIABLES
+==================================================
+
+Verify that the application is actually receiving:
+
+NEXT_PUBLIC_SUPABASE_URL
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+Check the environment configuration used by the running application.
+
+Do NOT expose any service-role or secret key to the browser.
+
+If an environment variable is missing, show a clear development error.
+
+==================================================
+5. CHECK SUPABASE CLIENT
+==================================================
+
+Inspect the Supabase client implementation.
+
+Verify that:
+
+- Supabase URL is correct
+- public client key is correct
+- browser client is initialized correctly
+- server client is initialized correctly where required
+- there aren't multiple conflicting Supabase clients
+- the signup page uses the correct client
+
+==================================================
+6. CHECK SUPABASE AUTH SETTINGS
+==================================================
+
+Verify that Email authentication is enabled in Supabase.
+
+Check whether email confirmation is enabled.
+
+If email confirmation is enabled:
+
+After signup show:
+
+"Account created. Check your email to verify your account."
+
+Do NOT immediately treat the user as logged in if Supabase requires verification.
+
+If email confirmation is disabled:
+
+Create the session and redirect to:
+
+/app
+
+==================================================
+7. CHECK PROFILE CREATION
+==================================================
+
+After successful signup, verify whether the application attempts to create a row in:
+
+profiles
+
+Check the RLS policy.
+
+The authenticated user's ID must match:
+
+profiles.user_id
+
+If profile creation fails, do not hide the error.
+
+Show/log the actual database error.
+
+IMPORTANT:
+
+Do not make the profiles table publicly writable.
+
+Keep RLS enabled.
+
+==================================================
+8. CHECK AUTH STATE
+==================================================
+
+Inspect the authentication provider/context.
+
+Verify:
+
+- session is detected after login
+- session persists after refresh
+- logout works
+- protected /app route works
+- authenticated user is correctly identified
+
+==================================================
+9. CHECK ROUTING
+==================================================
+
+After successful signup:
+
+redirect to:
+
+/app
+
+Make sure the redirect isn't failing because:
+
+- middleware rejects the user
+- session isn't available yet
+- route doesn't exist
+- client/server auth state is inconsistent
+
+==================================================
+10. CHECK FOR PHASE 2 REGRESSION
+==================================================
+
+Because Phase 2 modified the UI, inspect the Phase 2 changes carefully.
+
+Determine whether the redesign disconnected the original Phase 1 authentication handler.
+
+Common problems to check:
+
+- Sign Up button became a visual-only button
+- form onSubmit was removed
+- old signup function is no longer imported
+- new component doesn't receive the signup handler
+- button is accidentally disabled
+- event.preventDefault() prevents the handler
+- click handler does nothing
+- navigation component replaced the auth form
+- authentication state was removed during redesign
+
+If Phase 2 broke Phase 1 functionality, restore the correct authentication connection WITHOUT removing the premium design.
+
+==================================================
+11. USER EXPERIENCE
+==================================================
+
+There must never be a situation where clicking Sign Up produces no response.
+
+Show:
+
+Loading:
+"Creating your account..."
+
+Success:
+"Account created."
+
+Email verification:
+"Check your email to verify your account."
+
+Error:
+"Unable to create your account. Please try again."
+
+Validation:
+"Enter a valid email and password."
+
+The button must visibly change while the request is processing.
+
+Prevent duplicate submissions.
+
+==================================================
+12. TEST IT YOURSELF
+==================================================
+
+Do not just inspect the code.
+
+Actually run the application.
+
+Test:
+
+TEST 1:
+Click Sign Up with empty fields.
+
+Expected:
+Validation message.
+
+TEST 2:
+Enter invalid email.
+
+Expected:
+Validation message.
+
+TEST 3:
+Enter valid new email + password.
+
+Expected:
+Supabase signup request occurs.
+
+TEST 4:
+Check Supabase Authentication → Users.
+
+Expected:
+New user appears.
+
+TEST 5:
+Check profiles table.
+
+Expected:
+Corresponding profile exists if profile creation is part of the current flow.
+
+TEST 6:
+Login with the created account.
+
+Expected:
+User reaches /app.
+
+TEST 7:
+Refresh /app.
+
+Expected:
+User remains authenticated.
+
+TEST 8:
+Logout.
+
+Expected:
+User returns to login.
+
+==================================================
+13. FINAL REQUIREMENT
+==================================================
+
+Do NOT tell me:
+
+"Signup should work."
+
+Actually identify the root cause and fix it.
+
+After fixing, report:
+
+1. Root cause
+2. Files changed
+3. Supabase configuration checked
+4. Signup test result
+5. Login test result
+6. Whether a user was successfully created in Supabase
+7. Whether profile creation worked
+
+Do NOT proceed to Phase 3.
+
+STOP after authentication is verified.

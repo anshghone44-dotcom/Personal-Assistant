@@ -94,7 +94,6 @@ function Field({
           placeholder={placeholder}
           autoComplete={autoComplete}
           disabled={disabled}
-          required
           className="h-12 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background)/.62)] pl-11 pr-4 text-sm text-[hsl(var(--foreground))] outline-none transition-[border,box-shadow,background] placeholder:text-[hsl(var(--muted-foreground)/.75)] focus:border-[hsl(var(--primary))] focus:bg-[hsl(var(--card))] focus:ring-4 focus:ring-[hsl(var(--primary)/.10)] disabled:cursor-not-allowed disabled:opacity-60"
         />
       </span>
@@ -126,8 +125,6 @@ function PasswordField({
           placeholder="At least 6 characters"
           autoComplete="current-password"
           disabled={disabled}
-          minLength={6}
-          required
           className="h-12 w-full rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background)/.62)] pl-11 pr-12 text-sm text-[hsl(var(--foreground))] outline-none transition-[border,box-shadow,background] placeholder:text-[hsl(var(--muted-foreground)/.75)] focus:border-[hsl(var(--primary))] focus:bg-[hsl(var(--card))] focus:ring-4 focus:ring-[hsl(var(--primary)/.10)] disabled:cursor-not-allowed disabled:opacity-60"
         />
         <button
@@ -169,19 +166,52 @@ export function LoginPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    console.log("LOGIN FORM SUBMITTED");
+    if (pending) return;
+
     setError(null);
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail || !password) {
+      setError("Enter a valid email and password.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError("Enter a valid email and password.");
+      return;
+    }
+
     if (!isSupabaseConfigured) {
       setError('Authentication is not configured yet. Add the Supabase project keys to continue.');
       return;
     }
+
     setPending(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    setPending(false);
-    if (signInError) {
-      setError(signInError.message);
-      return;
+    console.log("Starting login");
+    console.log("Email:", trimmedEmail);
+
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password,
+      });
+
+      console.log("Supabase login response", { data, error: signInError });
+      setPending(false);
+
+      if (signInError) {
+        setError(signInError.message || "Unable to sign in. Please try again.");
+        return;
+      }
+
+      setLocation('/app');
+    } catch (err) {
+      console.error("Unexpected login error:", err);
+      setPending(false);
+      setError(err instanceof Error ? err.message : "Unable to sign in. Please try again.");
     }
-    setLocation('/app');
   }
 
   return (
@@ -191,11 +221,17 @@ export function LoginPage() {
         <h2 className="font-serif text-4xl tracking-[-.04em] text-[hsl(var(--foreground))]">Sign in to your space.</h2>
         <p className="mt-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">Pick up where you left off.</p>
       </div>
-      <form onSubmit={handleSubmit} className="mt-9 space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="mt-9 space-y-5">
         <Field id="email" label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" icon={Mail} autoComplete="email" disabled={pending} />
         <PasswordField value={password} onChange={setPassword} disabled={pending} />
         <AuthError message={error} />
-        <button type="submit" data-testid="button-submit-login" disabled={pending} className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--primary))] text-sm font-semibold text-[hsl(var(--primary-foreground))] shadow-[0_8px_20px_hsl(var(--primary)/.15)] transition-[transform,background,box-shadow] hover:-translate-y-0.5 hover:bg-[hsl(var(--primary)/.92)] hover:shadow-[0_12px_24px_hsl(var(--primary)/.2)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70">
+        <button
+          type="submit"
+          data-testid="button-submit-login"
+          disabled={pending}
+          onClick={() => console.log("LOGIN BUTTON CLICKED")}
+          className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--primary))] text-sm font-semibold text-[hsl(var(--primary-foreground))] shadow-[0_8px_20px_hsl(var(--primary)/.15)] transition-[transform,background,box-shadow] hover:-translate-y-0.5 hover:bg-[hsl(var(--primary)/.92)] hover:shadow-[0_12px_24px_hsl(var(--primary)/.2)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+        >
           {pending ? 'Signing in…' : 'Sign in'}
           {!pending && <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />}
         </button>
@@ -228,37 +264,100 @@ export function SignupPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    console.log("SIGNUP FORM SUBMITTED");
+    if (pending) return;
+
     setError(null);
     setNotice(null);
+
+    const trimmedEmail = email.trim();
+    const trimmedName = name.trim();
+
+    // Validation: empty email or password
+    if (!trimmedEmail || !password) {
+      setError("Enter a valid email and password.");
+      return;
+    }
+
+    // Validation: email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError("Enter a valid email and password.");
+      return;
+    }
+
+    // Validation: password length
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
     if (!isSupabaseConfigured) {
       setError('Authentication is not configured yet. Add the Supabase project keys to continue.');
       return;
     }
+
     setPending(true);
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: { data: { name: name.trim() } },
-    });
-    if (signUpError) {
-      setPending(false);
-      setError(signUpError.message);
-      return;
-    }
-    if (data.user && data.session) {
-      try {
-        await createProfileForUser(data.user, name);
-      } catch (profileError) {
+    console.log("Starting signup");
+    console.log("Email:", trimmedEmail);
+
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password,
+        options: {
+          data: {
+            name: trimmedName || undefined,
+          },
+        },
+      });
+
+      console.log("Supabase signup response", { data, error: signUpError });
+
+      if (signUpError) {
         setPending(false);
-        setError(profileError instanceof Error ? profileError.message : 'Your account was created, but your profile could not be saved.');
+        setError(signUpError.message || "Unable to create your account. Please try again.");
         return;
       }
+
+      if (data.user && data.session) {
+        // Direct session available (email confirmation disabled)
+        try {
+          await createProfileForUser(data.user, trimmedName);
+        } catch (profileError) {
+          console.error("Profile creation error during signup:", profileError);
+          setPending(false);
+          setError(profileError instanceof Error ? profileError.message : "Your account was created, but your profile could not be saved.");
+          return;
+        }
+        setPending(false);
+        setNotice("Account created.");
+        setLocation('/app');
+        return;
+      }
+
+      if (data.user) {
+        // In Supabase, if an account already exists and email confirmation is ON,
+        // identities is returned as an empty array [] to prevent email enumeration.
+        if (data.user.identities && data.user.identities.length === 0) {
+          setPending(false);
+          setError("An account with this email already exists. Please sign in instead.");
+          return;
+        }
+
+        // Email confirmation is enabled and required
+        setPending(false);
+        setNotice("Check your email to verify your account.");
+        return;
+      }
+
       setPending(false);
-      setLocation('/app');
-      return;
+      setError("Unable to create your account. Please try again.");
+    } catch (err) {
+      console.error("Unexpected signup error:", err);
+      setPending(false);
+      setError(err instanceof Error ? err.message : "Unable to create your account. Please try again.");
     }
-    setPending(false);
-    setNotice('Your account is ready. Check your email to confirm it, then sign in.');
   }
 
   return (
@@ -268,14 +367,24 @@ export function SignupPage() {
         <h2 className="font-serif text-4xl tracking-[-.04em] text-[hsl(var(--foreground))]">Make room for what matters.</h2>
         <p className="mt-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">Your private {APP_NAME} space starts here.</p>
       </div>
-      <form onSubmit={handleSubmit} className="mt-9 space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="mt-9 space-y-5">
         <Field id="name" label="Your name" value={name} onChange={setName} placeholder="How should we greet you?" icon={UserRound} autoComplete="name" disabled={pending} />
         <Field id="email" label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" icon={Mail} autoComplete="email" disabled={pending} />
         <PasswordField value={password} onChange={setPassword} disabled={pending} />
-        {notice && <div data-testid="status-signup-notice" role="status" className="rounded-xl border border-[hsl(var(--primary)/.18)] bg-[hsl(var(--primary)/.06)] px-4 py-3 text-sm leading-5 text-[hsl(var(--primary))]">{notice}</div>}
+        {notice && (
+          <div data-testid="status-signup-notice" role="status" className="rounded-xl border border-[hsl(var(--primary)/.18)] bg-[hsl(var(--primary)/.06)] px-4 py-3 text-sm leading-5 text-[hsl(var(--primary))]">
+            {notice}
+          </div>
+        )}
         <AuthError message={error} />
-        <button type="submit" data-testid="button-submit-signup" disabled={pending} className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--primary))] text-sm font-semibold text-[hsl(var(--primary-foreground))] shadow-[0_8px_20px_hsl(var(--primary)/.15)] transition-[transform,background,box-shadow] hover:-translate-y-0.5 hover:bg-[hsl(var(--primary)/.92)] hover:shadow-[0_12px_24px_hsl(var(--primary)/.2)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70">
-          {pending ? 'Creating your space…' : 'Create account'}
+        <button
+          type="submit"
+          data-testid="button-submit-signup"
+          disabled={pending}
+          onClick={() => console.log("SIGNUP BUTTON CLICKED")}
+          className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--primary))] text-sm font-semibold text-[hsl(var(--primary-foreground))] shadow-[0_8px_20px_hsl(var(--primary)/.15)] transition-[transform,background,box-shadow] hover:-translate-y-0.5 hover:bg-[hsl(var(--primary)/.92)] hover:shadow-[0_12px_24px_hsl(var(--primary)/.2)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {pending ? 'Creating your account...' : 'Sign Up'}
           {!pending && <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />}
         </button>
       </form>

@@ -235,6 +235,24 @@ export function LoginPage() {
           {pending ? 'Signing in…' : 'Sign in'}
           {!pending && <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />}
         </button>
+        <button
+          type="button"
+          data-testid="button-google-login"
+          disabled={pending}
+          onClick={async () => {
+            setPending(true);
+            const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+            if (error) {
+              setError(error.message);
+            } else {
+              // Supabase redirects back automatically; optionally handle post-login
+            }
+            setPending(false);
+          }}
+          className="mt-3 group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4285F4] text-sm font-semibold text-white shadow-[0_8px_20px_rgba(66,133,244,0.15)] transition-[transform,background,box-shadow] hover:-translate-y-0.5 hover:bg-[#3367D6] hover:shadow-[0_12px_24px_rgba(66,133,244,0.2)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          Sign in with Google
+        </button>
       </form>
       <p className="mt-7 text-center text-sm text-[hsl(var(--muted-foreground))]">
         New here?{' '}

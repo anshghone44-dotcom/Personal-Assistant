@@ -1,17 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
 
+const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : process.env;
+
 const rawSupabaseUrl =
-  (import.meta.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined) ||
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  (import.meta.env.SUPABASE_URL as string | undefined) ||
-  (import.meta.env.VITE_PUBLIC_SUPABASE_URL as string | undefined);
+  (env.NEXT_PUBLIC_SUPABASE_URL as string | undefined) ||
+  (env.VITE_SUPABASE_URL as string | undefined) ||
+  (env.SUPABASE_URL as string | undefined) ||
+  (env.VITE_PUBLIC_SUPABASE_URL as string | undefined);
 
 const rawSupabaseAnonKey =
-  (import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined) ||
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
-  (import.meta.env.SUPABASE_ANON_KEY as string | undefined) ||
-  (import.meta.env.SUPABASE_KEY as string | undefined) ||
-  (import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY as string | undefined);
+  (env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined) ||
+  (env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
+  (env.SUPABASE_ANON_KEY as string | undefined) ||
+  (env.SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
+  (env.SUPABASE_KEY as string | undefined) ||
+  (env.VITE_PUBLIC_SUPABASE_ANON_KEY as string | undefined);
 
 function isValidSupabaseUrl(value: string | undefined): value is string {
   if (!value) return false;
